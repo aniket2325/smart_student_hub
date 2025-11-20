@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useTheme } from "../../context/ThemeContext";
-import { Link, useLocation } from "react-router-dom";
-import { Sun, Moon, Menu, X, GraduationCap } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Sun, Moon, Menu, X, GraduationCap, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Header() {
   const { isDark, toggleTheme } = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
+
+  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+  const userRole = localStorage.getItem("userRole");
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -16,8 +20,14 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Don't show header on dashboard
-  if (location.pathname === "/dashboard") return null;
+  // Don't show header on dashboard pages
+  if (location.pathname.startsWith("/dashboard")) return null;
+
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("userRole");
+    navigate("/login");
+  };
 
   return (
     <motion.header
@@ -78,12 +88,32 @@ export default function Header() {
               Contact
             </Link>
 
-            <Link
-              to="/login"
-              className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg"
-            >
-              Login
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to={`/dashboard/${userRole}`}
+                  className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg"
+                >
+                  Dashboard
+                </Link>
+                <motion.button
+                  onClick={handleLogout}
+                  className="px-4 py-2.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl font-semibold flex items-center gap-2"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </motion.button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg"
+              >
+                Sign In
+              </Link>
+            )}
 
             <motion.button
               onClick={toggleTheme}
@@ -134,13 +164,36 @@ export default function Header() {
               >
                 Contact
               </Link>
-              <Link
-                to="/login"
-                onClick={() => setMobileMenu(false)}
-                className="block p-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold"
-              >
-                Login
-              </Link>
+
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    to={`/dashboard/${userRole}`}
+                    onClick={() => setMobileMenu(false)}
+                    className="block p-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenu(false);
+                    }}
+                    className="w-full text-left p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-semibold"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenu(false)}
+                  className="block p-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold"
+                >
+                  Sign In
+                </Link>
+              )}
+
               <button
                 onClick={() => {
                   toggleTheme();
