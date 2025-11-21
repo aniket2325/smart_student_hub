@@ -163,17 +163,51 @@ export default function DashboardLayout({
             </div>
 
             {/* Settings */}
-            <motion.button
-              onClick={() => {
-                setShowSettings(!showSettings);
-                setShowNotifications(false);
-              }}
-              className="p-3 rounded-xl bg-gray-100 dark:bg-gray-700"
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <Settings className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-            </motion.button>
+            <div className="relative">
+              <motion.button
+                onClick={() => {
+                  setShowSettings(!showSettings);
+                  setShowNotifications(false);
+                }}
+                className="p-3 rounded-xl bg-gray-100 dark:bg-gray-700"
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <Settings className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              </motion.button>
+
+              {/* Settings Dropdown */}
+              <AnimatePresence>
+                {showSettings && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+                  >
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                      <h3 className="font-bold text-lg text-gray-800 dark:text-white">Quick Settings</h3>
+                      <button onClick={() => setShowSettings(false)}>
+                        <X className="w-5 h-5 text-gray-500" />
+                      </button>
+                    </div>
+                    <div className="p-2">
+                      <motion.button
+                        onClick={() => {
+                          setActiveMenu('settings');
+                          setShowSettings(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left"
+                        whileHover={{ x: 5 }}
+                      >
+                        <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                        <span className="text-gray-800 dark:text-white font-medium">Open Settings</span>
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* Avatar */}
             <motion.div
